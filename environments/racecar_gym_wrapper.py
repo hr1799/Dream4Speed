@@ -22,7 +22,7 @@ class TrackWrapper():
         self.env = gymnasium.make('SingleAgentRaceEnv-v0',
                              scenario=scenario,
                              render_mode=render_mode)
-        self.action_space = self.env.action_space
+        self.action_space = spaces.Box(low=-1, high=1, shape=(2,))
         self.observation_space = spaces.Dict({
             "state": spaces.Box(low=-np.inf, high=np.inf, shape=(13,)),
             "image0": spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size)),
@@ -39,11 +39,12 @@ class TrackWrapper():
         self.lidar_angle_increment_deg = lidar_angle_increment_deg
         
     def step(self, action):
-        obs, reward, done, info, _ = self.env.step(action)
+        action_to_env= {"motor": action[0], "steering": action[1]}
+        obs, reward, done, _, _ = self.env.step(action_to_env)
         
         obs_dict = self._flatten_obs(obs)
         
-        return obs_dict, reward, done, info
+        return obs_dict, reward, done, {}
 
     def render(self):
         return self.env.render()
@@ -97,8 +98,8 @@ class TrackWrapper():
                 np.random.seed(seed)
             else:
                 raise TypeError("Seed must be an integer type!")
-        # super().reset returns an OrderedDict
-        ob_dict = self.env.reset(options=options)
+
+        ob_dict, _ = self.env.reset(options=options)
         return self._flatten_obs(ob_dict)
     
     def close(self):

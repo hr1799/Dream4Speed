@@ -13,8 +13,8 @@ def main():
     config = config.update({
         'logdir': 'train_logs/dreamer/' + EXPERIMENT_NAME,
         'run.train_ratio': 64,
-        'run.log_every': 30,  # Seconds
-        'batch_size': 2,
+        'run.log_every': 300,  # Seconds
+        'batch_size': 4,
         'jax.prealloc': False,
         'encoder.mlp_keys': 'state',
         'decoder.mlp_keys': 'state',
@@ -30,16 +30,16 @@ def main():
         embodied.logger.TerminalOutput(),
         embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
         embodied.logger.TensorBoardOutput(logdir),
-        # embodied.logger.WandBOutput(logdir.name, config),
+        embodied.logger.WandBOutput(pattern=".*", logdir=logdir, config=config),
         # embodied.logger.MLFlowOutput(logdir.name),
     ])
 
     import crafter
     from dreamerv3.embodied.envs import from_gym
-    from environments.env_make import make_env
+    from environments.racecar_gym_wrapper import TrackWrapper
     
     # env = crafter.Env()  # Replace this with your Gym env.
-    env = make_env("Lift")
+    env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye')
     
     env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
     env = dreamerv3.wrap_env(env, config)

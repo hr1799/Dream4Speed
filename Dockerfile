@@ -52,6 +52,10 @@ RUN pip3 install robodesk
 RUN pip3 install bsuite
 RUN pip3 install robosuite
 
+# Mount and install racecar_gym
+COPY /racecar_gym/ /home/racecar_gym/
+RUN cd /home/racecar_gym/ && pip3 install -e .
+
 # Agent
 RUN pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 RUN pip3 install jaxlib
@@ -66,10 +70,6 @@ ENV GCS_REQUEST_CONNECTION_TIMEOUT_SECS=300
 ENV GCS_METADATA_REQUEST_TIMEOUT_SECS=300
 ENV GCS_READ_REQUEST_TIMEOUT_SECS=300
 ENV GCS_WRITE_REQUEST_TIMEOUT_SECS=600
-
-# Mount and install racecar_gym
-COPY /racecar_gym/ /home/racecar_gym/
-RUN cd /home/racecar_gym/ && pip3 install -e .
 
 # Embodied
 RUN pip3 install numpy cloudpickle ruamel.yaml rich zmq msgpack
