@@ -1,5 +1,5 @@
 import gymnasium
-from gymnasium import Env
+from gymnasium import Env, spaces
 from racecar_gym.envs import gym_api
 import numpy as np
 
@@ -11,23 +11,37 @@ class TrackWrapper():
         render_mode = 'rgb_array_birds_eye',
         lidar_image_size = 128,
         lidar_image_resolution = 0.1, # meters per pixel
+        lidar_max_range = 10,
+        lidar_angle_min_deg = -135,
+        lidar_angle_increment_deg = 0.25,
     ):
         if render_mode not in ['human', 'rgb_array_birds_eye', 'rgb_array_follow', 'rgb_array_lidar']:
             raise ValueError(f"Render mode {render_mode} not supported.")
         
-        scenario = '/home/dreamerv3/environments/maps/' + map_name.lower() + '.yml'
+        scenario = './environments/maps/' + map_name.lower() + '.yml'
         self.env = gymnasium.make('SingleAgentRaceEnv-v0',
                              scenario=scenario,
                              render_mode=render_mode)
         self.action_space = self.env.action_space
-        self.observation_space = self.env.observation_space
+        self.observation_space = spaces.Dict({
+            "state": spaces.Box(low=-np.inf, high=np.inf, shape=(13,)),
+            "image0": spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size)),
+        })
+
         self.env.reset()
+
+        self.lidar_image = None
+
+        self.lidar_image_size = lidar_image_size
+        self.lidar_image_resolution = lidar_image_resolution
+        self.lidar_max_range = lidar_max_range
+        self.lidar_angle_min_deg = lidar_angle_min_deg
+        self.lidar_angle_increment_deg = lidar_angle_increment_deg
         
     def step(self, action):
         obs, reward, done, info, _ = self.env.step(action)
         
-        # obs_dict = self._flatten_obs(obs)
-        obs_dict = obs
+        obs_dict = self._flatten_obs(obs)
         
         return obs_dict, reward, done, info
 
@@ -41,11 +55,31 @@ class TrackWrapper():
         # lidar (1080,)
         # time ()
         
-        # TODO hari
+        self.lidar_image = np.zeros((self.lidar_image_size, self.lidar_image_size))
+        lidar_obs = obs['lidar']
+
+        for i in range(len(lidar_obs)):
+            if lidar_obs[i] > self.lidar_max_range * 0.95:
+                continue
+            if lidar_obs[i] < 0:
+                continue
+            
+            angle = self.lidar_angle_min_deg + i * self.lidar_angle_increment_deg
+            angle_rad = np.deg2rad(angle)
+            x = int(lidar_obs[i] * np.cos(angle_rad) / self.lidar_image_resolution)
+            y = int(lidar_obs[i] * np.sin(angle_rad) / self.lidar_image_resolution + self.lidar_image_size / 2)
+            if x >= 0 and x < self.lidar_image_size and y >= 0 and y < self.lidar_image_size:
+                self.lidar_image[y, x] = 1
+
+        state_vec = np.concatenate([
+                        [obs['time']],
+                        obs['pose'],
+                        obs['velocity']
+                    ])
         
         obs_dict = {
             "state": state_vec,
-            "image0": img0,
+            "image0": self.lidar_image,
         }
         
         return obs_dict
