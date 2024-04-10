@@ -67,6 +67,10 @@ ENV GCS_METADATA_REQUEST_TIMEOUT_SECS=300
 ENV GCS_READ_REQUEST_TIMEOUT_SECS=300
 ENV GCS_WRITE_REQUEST_TIMEOUT_SECS=600
 
+# Mount and install racecar_gym
+COPY /racecar_gym/ /home/racecar_gym/
+RUN cd /home/racecar_gym/ && pip3 install -e .
+
 # Embodied
 RUN pip3 install numpy cloudpickle ruamel.yaml rich zmq msgpack
 RUN pip3 install gymnasium

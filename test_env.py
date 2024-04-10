@@ -1,18 +1,20 @@
-from robosuite.controllers import load_controller_config
-from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
+from time import sleep
+import gymnasium
+from environments.racecar_gym_wrapper import TrackWrapper
 
-from environments.env_make import make_env
-
-env = make_env("Lift")
-
-# print env.observation_space and env.action_space
-print("Observation space:", env.observation_space)
-print("Action space:", env.action_space)
-# # simulate env for 10 steps
-for i in range(1000):
-    action = env.action_space.sample()  # sample random action
-    obs, reward, done, info = env.step(action)  # take action in the environment
-    env.render()  # render on the screen
-
-# close the env
+env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye')
+for _ in range(5):
+    action = env.action_space.sample()
+    obs, rewards, done, info = env.step(action)
+    
+    # print keys in obs, rewards, done, info
+    for k, v in obs.items():
+        print(k, v.shape)
+        
+    # print(rewards)
+    # print(done)
+    # print(info)
+    
+    print("\n"*3)
+    
 env.close()

@@ -7,7 +7,7 @@ docker run --privileged --rm -it \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="$XAUTH:$XAUTH" \
     --network host \
-    -v "$(pwd)/:/home/dream4speedv3" \
+    -v "$(pwd)/:/home/dreamerv3" \
     -v "/etc/timezone:/etc/timezone:ro" \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
