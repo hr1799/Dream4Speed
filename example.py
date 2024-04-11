@@ -1,4 +1,7 @@
-EXPERIMENT_NAME = "Lift"
+import os
+# set GPU 1
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+EXPERIMENT_NAME = "map_Austria"
 
 def main():
 
@@ -30,7 +33,7 @@ def main():
         embodied.logger.TerminalOutput(),
         embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
         embodied.logger.TensorBoardOutput(logdir),
-        embodied.logger.WandBOutput(pattern=".*", logdir=logdir, config=config),
+        # embodied.logger.WandBOutput(pattern=".*", logdir=logdir, config=config),
         # embodied.logger.MLFlowOutput(logdir.name),
     ])
 

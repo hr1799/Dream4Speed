@@ -25,7 +25,7 @@ class TrackWrapper():
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,))
         self.observation_space = spaces.Dict({
             "state": spaces.Box(low=-np.inf, high=np.inf, shape=(13,)),
-            "image0": spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size)),
+            "image0": spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size, 1)),
         })
 
         self.env.reset()
@@ -56,7 +56,7 @@ class TrackWrapper():
         # lidar (1080,)
         # time ()
         
-        self.lidar_image = np.zeros((self.lidar_image_size, self.lidar_image_size))
+        self.lidar_image = np.zeros((self.lidar_image_size, self.lidar_image_size, 1))
         lidar_obs = obs['lidar']
 
         for i in range(len(lidar_obs)):
