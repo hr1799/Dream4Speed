@@ -1,6 +1,6 @@
 import os
 # set GPU 1
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 EXPERIMENT_NAME = "map_Austria"
 
 def main():
@@ -14,6 +14,7 @@ def main():
     config = embodied.Config(dreamerv3.configs['defaults'])
     config = config.update(dreamerv3.configs['medium'])
     config = config.update({
+        'run.script': 'train_eval',
         'logdir': 'train_logs/dreamer/' + EXPERIMENT_NAME,
         'run.train_ratio': 64,
         'run.log_every': 300,  # Seconds
@@ -23,6 +24,8 @@ def main():
         'decoder.mlp_keys': 'state',
         'encoder.cnn_keys': 'image',
         'decoder.cnn_keys': 'image',
+        'envs.length': 2000,
+        'wrapper.length': 2000,
         # 'jax.platform': 'cpu',
     })
     config = embodied.Flags(config).parse()

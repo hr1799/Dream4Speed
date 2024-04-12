@@ -5,10 +5,13 @@ import cv2
 
 env = TrackWrapper(map_name='Austria', render_mode='human')
 out = env.reset()
-print(out)
+total_rewards=0
 for i in range(10000):
     action = env.action_space.sample()
     obs, rewards, done, info = env.step(action)
-    print(obs.keys())
+    total_rewards+=rewards
+    print(i, "Total rewards: ", total_rewards, "Done: ", done)
+    if done:
+        break
     
 env.close()
