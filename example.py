@@ -16,9 +16,9 @@ def main():
     config = config.update({
         'run.script': 'train_eval',
         'logdir': 'train_logs/dreamer/' + EXPERIMENT_NAME,
-        'run.train_ratio': 64,
-        'run.log_every': 300,  # Seconds
-        'batch_size': 4,
+        'run.train_ratio': 512,
+        'run.log_every': 60,  # Seconds
+        'batch_size': 16,
         'jax.prealloc': False,
         'encoder.mlp_keys': 'state',
         'decoder.mlp_keys': 'state',

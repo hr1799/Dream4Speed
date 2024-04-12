@@ -231,11 +231,13 @@ class WandBOutput:
   def __init__(self, pattern, logdir, config):
     self._pattern = re.compile(pattern)
     import wandb
+    from datetime import datetime
+    date_time_str = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
     wandb.init(
         project="dreamerv3",
-        name=logdir.name,
+        name=date_time_str + logdir.name,
         # sync_tensorboard=True,,
-        entity='word-bots',
+        entity='dream4speed',
         config=dict(config),
     )
     self._wandb = wandb
