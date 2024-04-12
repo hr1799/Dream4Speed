@@ -2,6 +2,7 @@ import gymnasium
 from gymnasium import Env, spaces
 from racecar_gym.envs import gym_api
 import numpy as np
+import cv2
 
 class TrackWrapper():
 
@@ -43,6 +44,8 @@ class TrackWrapper():
         obs, reward, done, _, _ = self.env.step(action_to_env)
         
         obs_dict = self._flatten_obs(obs)
+        im = self.env.render()
+        cv2.imshow('image', im)
         
         return obs_dict, reward, done, {}
 

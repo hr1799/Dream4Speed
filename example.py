@@ -1,6 +1,3 @@
-import os
-# set GPU 1
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 EXPERIMENT_NAME = "map_Austria"
 
 def main():
@@ -40,7 +37,6 @@ def main():
         # embodied.logger.MLFlowOutput(logdir.name),
     ])
 
-    import crafter
     from dreamerv3.embodied.envs import from_gym
     from environments.racecar_gym_wrapper import TrackWrapper
     
