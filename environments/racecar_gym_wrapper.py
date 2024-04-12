@@ -15,6 +15,7 @@ class TrackWrapper():
         lidar_max_range = 10,
         lidar_angle_min_deg = -135,
         lidar_angle_increment_deg = 0.25,
+        render_at_step=False
     ):
         if render_mode not in ['human', 'rgb_array_birds_eye', 'rgb_array_follow', 'rgb_array_lidar']:
             raise ValueError(f"Render mode {render_mode} not supported.")
@@ -38,14 +39,18 @@ class TrackWrapper():
         self.lidar_max_range = lidar_max_range
         self.lidar_angle_min_deg = lidar_angle_min_deg
         self.lidar_angle_increment_deg = lidar_angle_increment_deg
+        self.render_at_step = render_at_step
         
     def step(self, action):
         action_to_env= {"motor": action[0], "steering": action[1]}
         obs, reward, done, _, _ = self.env.step(action_to_env)
         
         obs_dict = self._flatten_obs(obs)
-        im = self.env.render()
-        cv2.imshow('image', im)
+        
+        if self.render_at_step:
+            im = self.env.render()
+            cv2.imshow('image', im)
+            cv2.waitKey(1)
         
         return obs_dict, reward, done, {}
 

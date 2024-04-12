@@ -2,7 +2,7 @@ EXPERIMENT_NAME = "map_Austria"
 
 import re
 
-import embodied
+import dreamerv3.embodied as embodied
 import numpy as np
 
 
@@ -46,7 +46,7 @@ def eval_only(agent, env, step, args):
 
     checkpoint = embodied.Checkpoint()
     checkpoint.agent = agent
-    checkpoint.load(logdir / 'checkpoint.pkl', keys=['agent'])
+    checkpoint.load(logdir / 'checkpoint.ckpt', keys=['agent'])
 
     print('Start evaluation loop.')
     policy = lambda *args: agent.policy(*args, mode='eval')
@@ -86,7 +86,7 @@ def main():
     from dreamerv3.embodied.envs import from_gym
     from environments.racecar_gym_wrapper import TrackWrapper
     
-    env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye')
+    env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye', render_at_step=True)
     
     env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
     env = dreamerv3.wrap_env(env, config)
