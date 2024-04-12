@@ -10,7 +10,7 @@ for i in range(10000):
     action = env.action_space.sample()
     obs, rewards, done, info = env.step(action)
     total_rewards+=rewards
-    print(i, "Total rewards: ", total_rewards, "Done: ", done)
+    print(i, "Total rewards: ", total_rewards, "Reward: ", rewards)
     if done:
         break
     

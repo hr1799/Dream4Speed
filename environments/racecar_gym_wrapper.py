@@ -43,7 +43,11 @@ class TrackWrapper():
         
     def step(self, action):
         action_to_env= {"motor": action[0], "steering": action[1]}
-        obs, reward, done, _, _ = self.env.step(action_to_env)
+        obs, reward, done, _, privilaged_state = self.env.step(action_to_env)
+        
+        if privilaged_state["wall_collision"]:
+            reward = -10
+            done = True
         
         obs_dict = self._flatten_obs(obs)
         
