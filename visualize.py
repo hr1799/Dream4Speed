@@ -86,7 +86,7 @@ def main():
     from dreamerv3.embodied.envs import from_gym
     from environments.racecar_gym_wrapper import TrackWrapper
     
-    env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye', render_at_step=True)
+    env = TrackWrapper(map_name='Austria', render_mode='human', render_at_step=True)
     
     env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
     env = dreamerv3.wrap_env(env, config)

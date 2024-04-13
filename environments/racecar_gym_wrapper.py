@@ -2,7 +2,6 @@ import gymnasium
 from gymnasium import Env, spaces
 from racecar_gym.envs import gym_api
 import numpy as np
-import cv2
 
 class TrackWrapper():
 
@@ -15,10 +14,13 @@ class TrackWrapper():
         lidar_max_range = 10,
         lidar_angle_min_deg = -135,
         lidar_angle_increment_deg = 0.25,
-        render_at_step=False
+        render_at_step=False,
+        reward_config = None
     ):
         if render_mode not in ['human', 'rgb_array_birds_eye', 'rgb_array_follow', 'rgb_array_lidar']:
             raise ValueError(f"Render mode {render_mode} not supported.")
+
+        self.reward_config = reward_config
         
         scenario = './environments/maps/' + map_name.lower() + '.yml'
         self.env = gymnasium.make('SingleAgentRaceEnv-v0',
@@ -42,21 +44,27 @@ class TrackWrapper():
         self.render_at_step = render_at_step
         
     def step(self, action):
+        # print("INPUT ACTION: ", action)
         action_to_env= {"motor": action[0], "steering": action[1]}
         obs, reward, done, _, privilaged_state = self.env.step(action_to_env)
         
-        if privilaged_state["wall_collision"]:
-            reward = -10
-            done = True
+        new_reward = reward
+        if self.reward_config is not None:
+            new_reward = reward*self.reward_config["progress_reward"]/100 + \
+                            self.reward_config["velocity_reward"]*np.sqrt(privilaged_state["velocity"][0]**2 + privilaged_state["velocity"][1]**2)
+                    
+            if privilaged_state["wall_collision"] or np.any(privilaged_state["opponent_collisions"]):
+                new_reward += self.reward_config["collision_reward"]
+                done = True
         
         obs_dict = self._flatten_obs(obs)
         
         if self.render_at_step:
-            im = self.env.render()
-            cv2.imshow('image', im)
-            cv2.waitKey(1)
+            self.env.render()
+        self.step_count += 1
+        print("Step count: ", self.step_count)
         
-        return obs_dict, reward, done, {}
+        return obs_dict, new_reward, done, {}
 
     def render(self):
         return self.env.render()
@@ -110,8 +118,10 @@ class TrackWrapper():
                 np.random.seed(seed)
             else:
                 raise TypeError("Seed must be an integer type!")
-
+        if options is None:
+            options = {"mode": "random"}
         ob_dict, _ = self.env.reset(options=options)
+        self.step_count = 0
         return self._flatten_obs(ob_dict)
     
     def close(self):
