@@ -44,7 +44,6 @@ class TrackWrapper():
         self.render_at_step = render_at_step
         
     def step(self, action):
-        # print("INPUT ACTION: ", action)
         action_to_env= {"motor": action[0], "steering": action[1]}
         obs, reward, done, _, privilaged_state = self.env.step(action_to_env)
         
@@ -62,7 +61,6 @@ class TrackWrapper():
         if self.render_at_step:
             self.env.render()
         self.step_count += 1
-        print("Step count: ", self.step_count)
         
         return obs_dict, new_reward, done, {}
 
