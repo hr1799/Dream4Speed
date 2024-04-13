@@ -1,9 +1,15 @@
-EXPERIMENT_NAME = "map_Austria"
+EXPERIMENT_NAME = "map_Austria_reward_random"
 
 import re
 
 import dreamerv3.embodied as embodied
 import numpy as np
+
+rewards_config = {
+    "collision_reward": -1,
+    "progress_reward": 100,
+    "velocity_reward": 0.01
+}
 
 
 def eval_only(agent, env, step, args):
@@ -76,7 +82,7 @@ def main():
         'encoder.cnn_keys': 'image',
         'decoder.cnn_keys': 'image',
         'envs.length': 2000,
-        'wrapper.length': 2000,
+        'wrapper.length': 3000,
         # 'jax.platform': 'cpu',
     })
     config = embodied.Flags(config).parse()
@@ -86,7 +92,7 @@ def main():
     from dreamerv3.embodied.envs import from_gym
     from environments.racecar_gym_wrapper import TrackWrapper
     
-    env = TrackWrapper(map_name='Austria', render_mode='human', render_at_step=True)
+    env = TrackWrapper(map_name='Austria', render_mode='human', reward_config=rewards_config, render_at_step=True)
     
     env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
     env = dreamerv3.wrap_env(env, config)
