@@ -1,4 +1,4 @@
-EXPERIMENT_NAME = "map_Austria_reward_random"
+EXPERIMENT_NAME = "map_Austria_reward_random_nostate"
 
 import re
 

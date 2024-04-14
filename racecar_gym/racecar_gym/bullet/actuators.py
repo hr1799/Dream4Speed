@@ -105,6 +105,7 @@ class SteeringWheel(BulletActuator[float]):
 
     def control(self, command: float) -> None:
         angle = command * self._config.max_steering_angle * self._config.steering_multiplier
+        angle = np.clip(angle, -self._config.max_steering_angle, self._config.max_steering_angle)
         for joint in self.joint_indices:
             pybullet.setJointMotorControl2(
                 self.body_id,

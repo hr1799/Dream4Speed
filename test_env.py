@@ -13,16 +13,20 @@ rewards_config = {
 import time
 import numpy as np
 np.random.seed(int(time.time()))
-env = TrackWrapper(map_name='Austria', render_mode='human', reward_config=rewards_config)
+env = TrackWrapper(map_name='Columbia', render_mode='human', reward_config=rewards_config)
 out = env.reset()
 total_rewards=0
-for i in range(10000):
-    action = env.action_space.sample()
+for i in range(1000):
+    # action = env.action_space.sample()
+    if i > 10:
+        action = np.array([1.0, 1.0])
+    else:
+        action = np.array([0.0, 0.0])
     obs, rewards, done, info = env.step(action)
     total_rewards+=rewards
     print(i, "Total rewards: ", total_rewards, "Reward: ", rewards)
     if done:
         break
-    sleep(0.1)
+    # sleep(0.1)
     
 env.close()
