@@ -15,7 +15,8 @@ class TrackWrapper():
         lidar_angle_min_deg = -135,
         lidar_angle_increment_deg = 0.25,
         render_at_step=False,
-        reward_config = None
+        reward_config = None,
+        include_state = True
     ):
         if render_mode not in ['human', 'rgb_array_birds_eye', 'rgb_array_follow', 'rgb_array_lidar']:
             raise ValueError(f"Render mode {render_mode} not supported.")
@@ -27,10 +28,10 @@ class TrackWrapper():
                              scenario=scenario,
                              render_mode=render_mode)
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,))
-        self.observation_space = spaces.Dict({
-            "state": spaces.Box(low=-np.inf, high=np.inf, shape=(13,)),
-            "image0": spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size, 1)),
-        })
+        self.observation_space = spaces.Dict()
+        if include_state:
+            self.observation_space["state"] = spaces.Box(low=-np.inf, high=np.inf, shape=(13,))
+        self.observation_space["image0"] = spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size, 1))
 
         self.env.reset()
 
