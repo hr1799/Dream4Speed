@@ -13,7 +13,7 @@ rewards_config = {
 import time
 import numpy as np
 np.random.seed(int(time.time()))
-env = TrackWrapper(map_name='Columbia', render_mode='rgb_array_birds_eye', reward_config=rewards_config)
+env = TrackWrapper(map_name='Columbia', render_mode='rgb_array_birds_eye', reward_config=rewards_config, include_state=False)
 out = env.reset()
 total_rewards=0
 for i in range(1000):

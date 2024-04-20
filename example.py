@@ -17,19 +17,19 @@ from environments.racecar_gym_wrapper import TrackWrapper
 
 
 # For Lift Robomimic
-EXPERIMENT_NAME = "map_Austria_reward_random_nostate"
+EXPERIMENT_NAME = "map_Austria_random_nostate"
 # reward = if_collision * collision_reward + progress_reward * progress(%) + velocity_reward * sqrt(vx^2 + vy^2)
 rewards_config = {
     "collision_reward": -1,
     "progress_reward": 100,
-    "velocity_reward": 0.01
+    "velocity_reward": 0.001
 }
 
 def main():
 
   config = embodied.Config(dreamerv3.Agent.configs['defaults'])
   config = config.update({
-      **dreamerv3.Agent.configs['size25m'],
+      **dreamerv3.Agent.configs['size12m'],
       'logdir': 'train_logs/dreamer/' + EXPERIMENT_NAME,
       'run.train_ratio': 512,
       'jax.prealloc': False, # If true, Preallocates 75% of the entire GPU memory
@@ -72,7 +72,7 @@ def main():
   def make_env(config, env_id=0):
     from embodied.envs import from_gym
     env = TrackWrapper(map_name='Austria', render_mode='rgb_array_birds_eye', \
-        reward_config=rewards_config, include_state=True)
+        reward_config=rewards_config, include_state=False)
     env = from_gym.FromGym(env)
     env = dreamerv3.wrap_env(env, config)
     return env

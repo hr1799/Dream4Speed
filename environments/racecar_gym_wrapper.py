@@ -29,9 +29,12 @@ class TrackWrapper():
                              render_mode=render_mode)
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,))
         self.observation_space = spaces.Dict()
+        self.include_state = include_state
         if include_state:
-            self.observation_space["state"] = spaces.Box(low=-np.inf, high=np.inf, shape=(13,))
-        self.observation_space["image0"] = spaces.Box(low=0, high=1, shape=(lidar_image_size, lidar_image_size, 1))
+            self.observation_space["state"] = spaces.Box(low=-np.inf, high=np.inf, shape=(13,), dtype=np.float64)
+        else:
+            self.observation_space["state"] = spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64)
+        self.observation_space["image0"] = spaces.Box(low=0, high=255, shape=(lidar_image_size, lidar_image_size, 1), dtype=np.uint8)
 
         self.env.reset()
 
@@ -75,7 +78,7 @@ class TrackWrapper():
         # lidar (1080,)
         # time ()
         
-        self.lidar_image = np.zeros((self.lidar_image_size, self.lidar_image_size, 1))
+        self.lidar_image = np.zeros((self.lidar_image_size, self.lidar_image_size, 1), dtype=np.uint8)
         lidar_obs = obs['lidar']
 
         for i in range(len(lidar_obs)):
@@ -89,13 +92,16 @@ class TrackWrapper():
             x = int(lidar_obs[i] * np.cos(angle_rad) / self.lidar_image_resolution)
             y = int(lidar_obs[i] * np.sin(angle_rad) / self.lidar_image_resolution + self.lidar_image_size / 2)
             if x >= 0 and x < self.lidar_image_size and y >= 0 and y < self.lidar_image_size:
-                self.lidar_image[y, x] = 1
+                self.lidar_image[y, x] = 255
 
-        state_vec = np.concatenate([
-                        [obs['time']],
-                        obs['pose'],
-                        obs['velocity']
-                    ])
+        if self.include_state:
+            state_vec = np.concatenate([
+                            [obs['time']],
+                            obs['pose'],
+                            obs['velocity']
+                        ])
+        else:
+            state_vec = np.zeros(1, dtype=np.float64)
         
         obs_dict = {
             "state": state_vec,
