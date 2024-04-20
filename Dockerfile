@@ -53,10 +53,6 @@ RUN pip3 install robodesk
 RUN pip3 install bsuite
 RUN pip3 install robosuite
 
-# Mount and install racecar_gym
-COPY /racecar_gym/ /home/racecar_gym/
-RUN cd /home/racecar_gym/ && pip3 install -e .
-
 # Agent
 RUN pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 RUN pip3 install jaxlib
@@ -78,5 +74,10 @@ ENV GCS_WRITE_REQUEST_TIMEOUT_SECS=600
 RUN pip3 install cloudpickle colored google-cloud-pubsub gputil \
                     msgpack numpy psutil ruamel.yaml tensorflow-cpu zmq
 RUN pip3 install gymnasium einops
+
+# Mount and install racecar_gym
+RUN pip3 install pybullet scipy gymnasium yamldataclassconfig nptyping==1.4.4 pettingzoo==1.22.3
+COPY /racecar_gym/ /home/racecar_gym/
+RUN cd /home/racecar_gym/ && pip3 install -e . --no-deps
 
 WORKDIR /home/dreamerv3/
