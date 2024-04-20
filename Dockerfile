@@ -17,32 +17,33 @@
 # System
 # FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 FROM nvidia/cudagl:11.4.1-devel-ubuntu20.04
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/San_Francisco
+ENV PYTHONUNBUFFERED 1
+ENV PIP_NO_CACHE_DIR 1
+ENV PIP_ROOT_USER_ACTION=ignore
+RUN apt-get update && apt-get install -y \
+  ffmpeg git vim curl software-properties-common \
+  libglew-dev x11-xserver-utils xvfb \
+  && apt-get clean
 
-# Upgrade python to 3.9
+# Upgrade python to 3.11
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
-    apt-get install -y python3.9 python3.9-dev python3.9-distutils && \
+    apt-get install -y python3.11 python3.11-dev python3.11-distutils && \
     apt-get install -y python3-pip && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
-ENV PYTHONUNBUFFERED 1
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
-ENV PIP_NO_CACHE_DIR 1
-RUN apt-get update && apt-get install -y \
-  ffmpeg git python3-pip vim libglew-dev \
-  x11-xserver-utils xvfb \
-  && apt-get clean
-RUN pip3 install --upgrade pip
+# Upgrade pip
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 
 # Envs
 ENV MUJOCO_GL egl
 ENV DMLAB_DATASET_PATH /dmlab_data
-COPY /dreamerv3/embodied/scripts /scripts
-RUN sh scripts/install-dmlab.sh
+# COPY /dreamerv3/embodied/scripts /scripts
+# RUN sh scripts/install-dmlab.sh
 # RUN sh scripts/install-atari.sh
 # RUN sh scripts/install-minecraft.sh
 ENV NUMBA_CACHE_DIR=/tmp
@@ -62,6 +63,8 @@ RUN pip3 install jaxlib
 RUN pip3 install tensorflow_probability
 RUN pip3 install optax
 RUN pip3 install tensorflow-cpu
+RUN pip3 install cmake
+RUN pip3 install wandb
 ENV XLA_PYTHON_CLIENT_MEM_FRACTION 0.8
 
 # Google Cloud DNS cache (optional)
@@ -72,9 +75,8 @@ ENV GCS_READ_REQUEST_TIMEOUT_SECS=300
 ENV GCS_WRITE_REQUEST_TIMEOUT_SECS=600
 
 # Embodied
-RUN pip3 install numpy cloudpickle ruamel.yaml rich zmq msgpack
-RUN pip3 install gymnasium
-COPY /dreamerv3/ /home/dreamerv3/
-RUN chown -R 1000:root /home/dreamerv3/embodied && chmod -R 775 /home/dreamerv3/embodied
+RUN pip3 install cloudpickle colored google-cloud-pubsub gputil \
+                    msgpack numpy psutil ruamel.yaml tensorflow-cpu zmq
+RUN pip3 install gymnasium einops
 
 WORKDIR /home/dreamerv3/
