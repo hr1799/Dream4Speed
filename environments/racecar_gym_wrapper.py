@@ -2,6 +2,7 @@ import gymnasium
 from gymnasium import Env, spaces
 from racecar_gym.envs import gym_api
 import numpy as np
+import cv2
 
 class TrackWrapper():
 
@@ -46,8 +47,11 @@ class TrackWrapper():
         self.lidar_angle_min_deg = lidar_angle_min_deg
         self.lidar_angle_increment_deg = lidar_angle_increment_deg
         self.render_at_step = render_at_step
+        if render_at_step:
+            cv2.namedWindow("Racecar", cv2.WINDOW_NORMAL)
         
     def step(self, action):
+        print("Stepping")
         action_to_env= {"motor": action[0], "steering": action[1]}
         obs, reward, done, _, privilaged_state = self.env.step(action_to_env)
         
@@ -63,7 +67,11 @@ class TrackWrapper():
         obs_dict = self._flatten_obs(obs)
         
         if self.render_at_step:
-            self.env.render()
+            img = self.env.render()
+            print("Rendering step:", self.step_count, " with shape:", img.shape)
+            cv2.imshow("Racecar", img)
+            cv2.waitKey(1)
+            
         self.step_count += 1
         
         return obs_dict, new_reward, done, {}
