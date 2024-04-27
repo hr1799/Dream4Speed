@@ -287,6 +287,3 @@ debug:
   .*\.layers: 2
   .*\.units: 8
   .*\.depth: 2
-  .*\.repdep: 4
-  .*\.tower.blocks: 1
-  .*\.mindepth: 2

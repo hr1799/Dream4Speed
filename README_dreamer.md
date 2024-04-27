@@ -48,6 +48,8 @@ increases data efficiency.
 
 # Instructions
 
+The code has been tested on Linux and Mac.
+
 ## Docker
 
 You can either use the provided `Dockerfile` that contains instructions or
@@ -58,7 +60,9 @@ follow the manual instructions below.
 Install [JAX][jax] and then the other dependencies:
 
 ```sh
-pip install -r requirements.txt
+pip install -U -r embodied/requirements.txt
+pip install -U -r dreamerv3/requirements.txt \
+  -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
 
 Simple training script:
@@ -71,10 +75,13 @@ Flexible training script:
 
 ```sh
 python dreamerv3/main.py \
-  --logdir ~/logdir/$(date "+%Y%m%d-%H%M%S") \
+  --logdir ~/logdir/{timestamp} \
   --configs crafter \
   --run.train_ratio 32
 ```
+
+To reproduce results, train on the desired task using the corresponding config,
+such as `--configs atari --task atari_pong`.
 
 # Tips
 
