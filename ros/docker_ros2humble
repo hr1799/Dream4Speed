@@ -64,47 +64,56 @@ RUN pip3 install opencv-python
 COPY /racecar_gym/ /home/racecar_gym/
 RUN cd /home/racecar_gym/ && pip3 install -e . --no-deps
 
-# Install ros noetic
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-RUN apt install curl -y
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
-RUN apt-get update && apt-get install -y ros-noetic-desktop
+RUN rm -r /usr/bin/python3 && ln -s /usr/bin/python3.8 /usr/bin/python3
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.8
 
-# Install rosdep
-RUN apt install python3-rosdep -y  && rosdep init && rosdep update
+# Install ROS 2 Humble
+#####################################
+# enable sudo commands
+RUN apt-get update && apt-get install -y sudo
+RUN apt-get install python3-apt -y
+# RUN sudo apt install software-properties-common && sudo add-apt-repository universe
+# RUN sudo apt update && sudo apt install curl -y
+RUN sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+RUN sudo apt update && sudo apt install -y \
+        python3-flake8-docstrings \
+        python3-pip \
+        python3-pytest-cov \
+        ros-dev-tools
+
+RUN python3 -m pip install -U \
+        flake8-blind-except \
+        flake8-builtins \
+        flake8-class-newline \
+        flake8-comprehensions \
+        flake8-deprecated \
+        flake8-import-order \
+        flake8-quotes \
+        "pytest>=5.3" \
+        pytest-repeat \
+        pytest-rerunfailures
+
+RUN mkdir -p ~/ros2_humble/src && cd ~/ros2_humble && \
+        vcs import --input https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos src
+
+RUN sudo apt -y upgrade && sudo rosdep init && rosdep update
+RUN cd ~/ros2_humble && rosdep install --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
+
+RUN cd ~/ros2_humble/ && colcon build --symlink-install
 
 # Allow sourcing
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh 
 
-# Install rospkg in conda environment
-RUN pip3 install rospkg
+RUN echo "source ~/ros2_humble/install/setup.bash" >> ~/.bashrc
+#######################################
 
-# Install ros2 foxy
-RUN apt-get update && apt-get install -y curl gnupg2 lsb-release
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
-RUN sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros2-latest.list'
-RUN apt-get update && apt-get install -y ros-foxy-desktop
 
-#  Alias for sourcing
-# sr1 -> source ros 1
-# sr2 -> source ros 2
-RUN echo "alias sr1='source /opt/ros/noetic/setup.bash'" >> ~/.bashrc
-RUN echo "alias sr2='source /opt/ros/foxy/setup.bash'" >> ~/.bashrc
-
-# Install ackermann_msgs in ros1 and ros2
-RUN apt-get install -y ros-noetic-ackermann-msgs ros-foxy-ackermann-msgs
-
-# Install ros1 bridge
-RUN pip install -U colcon-common-extensions
-COPY /ros/ros2_ws /home/ros2_ws
-RUN cd /home/ros2_ws && source /opt/ros/noetic/setup.bash && source /opt/ros/foxy/setup.bash && \
-        colcon build --symlink-install --packages-select ros1_bridge --cmake-force-configure
-
-# Install tmux
-RUN apt-get install -y tmux
+# # Install rospkg in conda environment
+# RUN pip3 install rospkg
 
 # # Set python3.8 as default (for roscore to work)
-RUN rm -r /usr/bin/python3 && ln -s /usr/bin/python3.8 /usr/bin/python3
+# RUN rm -r /usr/bin/python3 && ln -s /usr/bin/python3.8 /usr/bin/python3
 
 # workdir /home/dreamerv3
 WORKDIR /home/dreamerv3

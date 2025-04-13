@@ -1,1 +1,1 @@
-sudo chown -R $(whoami) train_logs/
+sudo chown -R $(whoami) train_logs racecar_gym eval_logs videos

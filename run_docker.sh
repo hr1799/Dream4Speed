@@ -12,4 +12,5 @@ docker run --privileged --rm -it \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
     --gpus all \
+    --privileged \
     dream4speed bash
